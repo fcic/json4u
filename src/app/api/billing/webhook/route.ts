@@ -69,49 +69,6 @@ export async function POST(request: Request) {
   return new Response('ok', { status: 200 });
 }
 
-// Test mode: https://docs.lemonsqueezy.com/help/getting-started/test-mode#test-card-numbers
-export async function POST(request: Request) {
-  const eventName = request.headers.get("X-Event-Name");
-  const ua = request.headers.get("User-Agent");
-  const body = await request.text();
-
-  // sometimes subscription_created will be sent with a null body for a unknown reason
-  if (!body) {
-    console.error(`Empty rawBody: event[${eventName}] ua[${ua}]`);
-    return new Response("Invalid signature", { status: 400 });
-  }
-
-  const hmac = crypto.createHmac("sha256", env.LEMONSQUEEZY_WEBHOOK_SECRET);
-  const digest = Buffer.from(hmac.update(body).digest("hex"), "utf8");
-  const signature = Buffer.from(request.headers.get("X-Signature") || "", "utf8");
-
-  if (!crypto.timingSafeEqual(digest, signature)) {
-    console.error(
-      `Invalid signature: event[${eventName}] ua[${ua}] digest[${digest}] signature[${signature}] body[${body}]`,
-    );
-    return new Response("Invalid signature", { status: 400 });
-  }
-
-  const req = JSON.parse(body);
-  const { success, error, data: webhookReq } = WebhookRequest.safeParse(req);
-
-  if (!success) {
-    return new Response(`Data invalid: ${error}`, { status: 400 });
-  }
-
-  const { error: err } = await handle(webhookReq);
-
-  if (err) {
-    console.error(`Handle webhook event failed (${err}): body[${body}]`);
-    return new Response(err, { status: 500 });
-  } else {
-    const data = webhookReq?.data;
-    console.log(
-      `Handle ${webhookReq?.meta?.event_name} success. subscription_id[${data?.id}] email[${data?.attributes?.user_email}]`,
-    );
-    return new Response("OK", { status: 200 });
-  }
-}
 
 /* https://docs.lemonsqueezy.com/help/webhooks#events-sent-during-a-subscriptions-lifecycle
 Initial order is placed:
