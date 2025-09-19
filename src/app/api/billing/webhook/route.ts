@@ -6,6 +6,8 @@ import { Db } from "@/lib/supabase/server";
 import type { Order } from "@/lib/supabase/table.types";
 import crypto from "node:crypto";
 
+export const runtime = 'edge';
+
 // Test mode: https://docs.lemonsqueezy.com/help/getting-started/test-mode#test-card-numbers
 export async function POST(request: Request) {
   const eventName = request.headers.get("X-Event-Name");
