@@ -1,7 +1,7 @@
 // "use server";
 
 import { env } from "@/lib/env";
-import { SubscriptionType, WebhookRequest, type TWebhookRequest } from "@/lib/shop/types";
+import { SubscriptionType, type TWebhookRequest } from "@/lib/shop/types";
 import { Db } from "@/lib/supabase/server";
 import type { Order } from "@/lib/supabase/table.types";
 // import crypto from "node:crypto";
